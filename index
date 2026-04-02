@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แบบฟอร์มบันทึกนัดหมาย</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap');
+    
+    body { 
+      font-family: 'Sarabun', sans-serif; 
+      background: linear-gradient(135deg, #e0f2fe 0%, #fff1f2 100%);
+      min-height: 100vh;
+    }
+
+    .custom-input {
+      transition: all 0.3s ease;
+    }
+    .custom-input:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.1), 0 2px 4px -1px rgba(236, 72, 153, 0.06);
+    }
+    
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(5px);
+      display: none; justify-content: center; align-items: center; z-index: 50;
+    }
+
+    /* Animation สำหรับหน้า Success */
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4 min-h-screen">
+
+  <!-- Loading Screen -->
+  <div id="loading" class="loading-overlay">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-pink-500 mx-auto"></div>
+      <p class="mt-4 text-gray-600 font-semibold text-lg animate-pulse">กำลังบันทึกข้อมูล...</p>
+    </div>
+  </div>
+
+  <div class="w-full max-w-lg bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/50">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-400 to-pink-500 p-5 text-center relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -translate-x-10 -translate-y-10"></div>
+      <div class="absolute bottom-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full translate-x-10 translate-y-10"></div>
+      
+      <div class="relative z-10 mb-3 flex justify-center">
+        <div class="bg-white p-2 rounded-xl shadow-lg inline-block transform hover:scale-105 transition-transform duration-300">
+           <img src="https://pakprak.ac.th/wp-content/uploads/2021/10/logohomeArtboard-1-2048x523.png" 
+                alt="School Logo" 
+                class="h-10 md:h-12 w-auto object-contain">
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold text-white mb-1 relative z-10 drop-shadow-sm">
+        <i class="far fa-calendar-check mr-2"></i>นัดหมายใหม่
+      </h2>
+      <p class="text-white/90 text-sm font-medium relative z-10">ระบบบันทึกตารางงานออนไลน์</p>
+    </div>
+
+    <!-- Form Section -->
+    <form id="eventForm" class="p-8 space-y-5" onsubmit="submitForm(event)">
+      <!-- หัวข้อ -->
+      <div class="group">
+        <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">หัวข้อกิจกรรม</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-heading text-blue-300"></i>
+          </div>
+          <input class="custom-input w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+                 id="title" name="title" type="text" placeholder="เช่น ประชุมทีม, ส่งงาน" required>
+        </div>
+      </div>
+
+      <!-- Checkbox ตลอดทั้งวัน -->
+      <div class="flex items-center ml-1">
+        <input type="checkbox" id="allDay" class="w-5 h-5 text-pink-500 rounded focus:ring-pink-400 border-gray-300" onchange="toggleAllDay()">
+        <label for="allDay" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
+          กิจกรรมตลอดทั้งวัน (All Day)
+        </label>
+      </div>
+
+      <!-- วันเวลา -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="group">
+          <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">เริ่ม</label>
+          <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+                 id="startTime" name="startTime" type="datetime-local" required>
+        </div>
+        <div class="group">
+          <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">สิ้นสุด</label>
+          <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+                 id="endTime" name="endTime" type="datetime-local" required>
+        </div>
+      </div>
+
+      <!-- สถานที่ -->
+      <div class="group">
+        <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">สถานที่</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-map-marker-alt text-blue-300"></i>
+          </div>
+          <input class="custom-input w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+                 id="location" name="location" type="text" placeholder="ระบุสถานที่ (เช่น ห้องประชุม, ออนไลน์)">
+        </div>
+      </div>
+
+      <!-- รายละเอียด -->
+      <div class="group">
+        <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">รายละเอียด</label>
+        <textarea class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+                  id="description" name="description" rows="3" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl focus:ring-4 focus:ring-pink-200 active:scale-95">
+        <span class="flex items-center justify-center gap-2">
+          <i class="fas fa-save"></i> บันทึกข้อมูล
+        </span>
+      </button>
+    </form>
+
+    <!-- Success View Section (Hidden by default) -->
+    <div id="successView" class="hidden p-8 text-center fade-in">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-check text-4xl text-green-500"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">บันทึกสำเร็จ!</h3>
+      <p class="text-gray-600 mb-8">ข้อมูลของคุณถูกบันทึกลงในปฏิทินเรียบร้อยแล้ว</p>
+      
+      <div class="space-y-3">
+        <a href="https://calendar.google.com/calendar/embed?src=sathit.ritin40%40gmail.com&ctz=Asia%2FBangkok" 
+           target="_blank"
+           class="block w-full bg-white border-2 border-blue-500 text-blue-600 font-bold py-3 rounded-2xl hover:bg-blue-50 transition duration-300">
+          <i class="far fa-calendar-alt mr-2"></i> ดูปฏิทินกิจกรรม
+        </a>
+        
+        <button onclick="resetAndShowForm()" 
+                class="block w-full bg-gradient-to-r from-blue-500 to-pink-500 text-white font-bold py-3 rounded-2xl hover:shadow-lg transition duration-300">
+          <i class="fas fa-plus mr-2"></i> เพิ่มรายการใหม่
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fixed bottom-4 text-center w-full text-gray-400 text-xs">
+    © Created by ICT PPW
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    // =========================================================
+    // ⚠️ นำ URL ที่ได้จากการ Deploy Web App ของ Apps Script มาใส่ตรงนี้ 
+    // =========================================================
+    const APPS_SCRIPT_WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    // === ส่วนจัดการ Logic หน้าเว็บ ===
+    window.onload = function() {
+      setDefaultDateTime();
+    };
+
+    function setDefaultDateTime() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      
+      const isAllDay = document.getElementById('allDay').checked;
+      
+      if (isAllDay) {
+        document.getElementById('startTime').value = now.toISOString().slice(0,10);
+        document.getElementById('endTime').value = now.toISOString().slice(0,10);
+      } else {
+        document.getElementById('startTime').value = now.toISOString().slice(0,16);
+        const oneHourLater = new Date(now.getTime() + 60*60*1000);
+        oneHourLater.setMinutes(oneHourLater.getMinutes() - oneHourLater.getTimezoneOffset());
+        document.getElementById('endTime').value = oneHourLater.toISOString().slice(0,16);
+      }
+    }
+
+    function toggleAllDay() {
+      const isAllDay = document.getElementById('allDay').checked;
+      const startInput = document.getElementById('startTime');
+      const endInput = document.getElementById('endTime');
+      
+      if (isAllDay) {
+        startInput.type = 'date';
+        endInput.type = 'date';
+      } else {
+        startInput.type = 'datetime-local';
+        endInput.type = 'datetime-local';
+      }
+      setDefaultDateTime();
+    }
+
+    // === ฟังก์ชันส่งข้อมูลด้วย fetch API แทน google.script.run ===
+    function submitForm(e) {
+      e.preventDefault();
+      
+      // ดักแจ้งเตือนหากลืมใส่ URL (สำหรับนักพัฒนา)
+      if (APPS_SCRIPT_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbzDlFJzPtv-OU8vJ05wRx3jIIOK176O_08RqRR9idoOpnhvfPv0z0E-Pck1F8Xwxlyy/exec") {
+          alert("กรุณาตั้งค่า APPS_SCRIPT_WEB_APP_URL ในโค้ดก่อนใช้งาน");
+          return;
+      }
+
+      document.getElementById('loading').style.display = 'flex';
+      
+      const isAllDay = document.getElementById('allDay').checked;
+
+      const formData = {
+        title: document.getElementById('title').value,
+        startTime: document.getElementById('startTime').value,
+        endTime: document.getElementById('endTime').value,
+        location: document.getElementById('location').value,
+        description: document.getElementById('description').value,
+        isAllDay: isAllDay,
+        fileData: null
+      };
+
+      if (!isAllDay && new Date(formData.endTime) <= new Date(formData.startTime)) {
+         alert("⚠️ เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น");
+         document.getElementById('loading').style.display = 'none';
+         return;
+      }
+      if (isAllDay && new Date(formData.endTime) < new Date(formData.startTime)) {
+         alert("⚠️ วันที่สิ้นสุดต้องไม่อยู่ก่อนวันที่เริ่มต้น");
+         document.getElementById('loading').style.display = 'none';
+         return;
+      }
+
+      // ส่งข้อมูลด้วย fetch
+      fetch(APPS_SCRIPT_WEB_APP_URL, {
+        method: "POST",
+        // สำคัญ: สำหรับ GAS ต้องส่งเป็น plain text เพื่อหลีกเลี่ยงปัญหา CORS Preflight
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8", 
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => onSuccess(data))
+      .catch(error => onFailure(error));
+    }
+
+    function onSuccess(response) {
+      document.getElementById('loading').style.display = 'none';
+      if (response.success) {
+        // ซ่อนฟอร์ม และแสดงหน้า Success
+        document.getElementById('eventForm').classList.add('hidden');
+        document.getElementById('successView').classList.remove('hidden');
+      } else {
+        alert("❌ " + response.message);
+      }
+    }
+
+    function onFailure(error) {
+      document.getElementById('loading').style.display = 'none';
+      alert("❌ Error: ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ (" + error.message + ")");
+    }
+
+    function resetAndShowForm() {
+      document.getElementById('eventForm').reset();
+      toggleAllDay(); // Reset state
+      
+      // สลับหน้ากลับมาแสดงฟอร์ม
+      document.getElementById('successView').classList.add('hidden');
+      document.getElementById('eventForm').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
