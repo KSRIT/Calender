@@ -93,13 +93,21 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="group">
           <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">เริ่ม</label>
-          <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
-                 id="startTime" name="startTime" type="datetime-local" required>
+          <div class="flex gap-2">
+            <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+                   id="startDate" type="date" required>
+            <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+                   id="startTime" type="time" required>
+          </div>
         </div>
         <div class="group">
           <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">สิ้นสุด</label>
-          <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
-                 id="endTime" name="endTime" type="datetime-local" required>
+          <div class="flex gap-2">
+            <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+                   id="endDate" type="date" required>
+            <input class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+                   id="endTime" type="time" required>
+          </div>
         </div>
       </div>
 
@@ -139,7 +147,7 @@
       <p class="text-gray-600 mb-8">ข้อมูลของคุณถูกบันทึกลงในปฏิทินเรียบร้อยแล้ว</p>
       
       <div class="space-y-3">
-        <a href="https://calendar.google.com/calendar/embed?src=sathit.ritin40%40gmail.com&ctz=Asia%2FBangkok" 
+        <a href="https://calendar.google.com/calendar/embed?src=2c05d97db573c4fa52e4a603fdbcf42a52042763b94c42b37222b41730f07445%40group.calendar.google.com&ctz=Asia%2FBangkok" 
            target="_blank"
            class="block w-full bg-white border-2 border-blue-500 text-blue-600 font-bold py-3 rounded-2xl hover:bg-blue-50 transition duration-300">
           <i class="far fa-calendar-alt mr-2"></i> ดูปฏิทินกิจกรรม
@@ -172,32 +180,40 @@
 
     function setDefaultDateTime() {
       const now = new Date();
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      // จัดการกับ Timezone ให้ตรงกับเครื่องผู้ใช้
+      const tzoffset = now.getTimezoneOffset() * 60000;
       
-      const isAllDay = document.getElementById('allDay').checked;
+      const localNow = new Date(now - tzoffset);
+      const startDateStr = localNow.toISOString().split('T')[0];
+      const startTimeStr = localNow.toISOString().split('T')[1].slice(0, 5); // เอาเฉพาะชั่วโมงและนาที HH:mm
       
-      if (isAllDay) {
-        document.getElementById('startTime').value = now.toISOString().slice(0,10);
-        document.getElementById('endTime').value = now.toISOString().slice(0,10);
-      } else {
-        document.getElementById('startTime').value = now.toISOString().slice(0,16);
-        const oneHourLater = new Date(now.getTime() + 60*60*1000);
-        oneHourLater.setMinutes(oneHourLater.getMinutes() - oneHourLater.getTimezoneOffset());
-        document.getElementById('endTime').value = oneHourLater.toISOString().slice(0,16);
-      }
+      const oneHourLater = new Date(now.getTime() + 60*60*1000 - tzoffset);
+      const endDateStr = oneHourLater.toISOString().split('T')[0];
+      const endTimeStr = oneHourLater.toISOString().split('T')[1].slice(0, 5);
+
+      document.getElementById('startDate').value = startDateStr;
+      document.getElementById('endDate').value = endDateStr;
+      document.getElementById('startTime').value = startTimeStr;
+      document.getElementById('endTime').value = endTimeStr;
     }
 
     function toggleAllDay() {
       const isAllDay = document.getElementById('allDay').checked;
-      const startInput = document.getElementById('startTime');
-      const endInput = document.getElementById('endTime');
+      const startTimeInput = document.getElementById('startTime');
+      const endTimeInput = document.getElementById('endTime');
       
       if (isAllDay) {
-        startInput.type = 'date';
-        endInput.type = 'date';
+        // ซ่อนช่องกรอกเวลาถ้าเลือกกิจกรรมตลอดทั้งวัน
+        startTimeInput.classList.add('hidden');
+        endTimeInput.classList.add('hidden');
+        startTimeInput.required = false;
+        endTimeInput.required = false;
       } else {
-        startInput.type = 'datetime-local';
-        endInput.type = 'datetime-local';
+        // แสดงช่องกรอกเวลาตามปกติ
+        startTimeInput.classList.remove('hidden');
+        endTimeInput.classList.remove('hidden');
+        startTimeInput.required = true;
+        endTimeInput.required = true;
       }
       setDefaultDateTime();
     }
@@ -215,11 +231,20 @@
       document.getElementById('loading').style.display = 'flex';
       
       const isAllDay = document.getElementById('allDay').checked;
+      
+      // รวมวันที่และเวลากลับเป็น format เดียวเพื่อส่งไป GS
+      let startDateTime = document.getElementById('startDate').value;
+      let endDateTime = document.getElementById('endDate').value;
+
+      if (!isAllDay) {
+        startDateTime += 'T' + document.getElementById('startTime').value;
+        endDateTime += 'T' + document.getElementById('endTime').value;
+      }
 
       const formData = {
         title: document.getElementById('title').value,
-        startTime: document.getElementById('startTime').value,
-        endTime: document.getElementById('endTime').value,
+        startTime: startDateTime,
+        endTime: endDateTime,
         location: document.getElementById('location').value,
         description: document.getElementById('description').value,
         isAllDay: isAllDay,
