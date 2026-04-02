@@ -163,7 +163,7 @@
     // =========================================================
     // ⚠️ นำ URL ที่ได้จากการ Deploy Web App ของ Apps Script มาใส่ตรงนี้ 
     // =========================================================
-    const APPS_SCRIPT_WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+    const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDlFJzPtv-OU8vJ05wRx3jIIOK176O_08RqRR9idoOpnhvfPv0z0E-Pck1F8Xwxlyy/exec";
 
     // === ส่วนจัดการ Logic หน้าเว็บ ===
     window.onload = function() {
@@ -207,7 +207,7 @@
       e.preventDefault();
       
       // ดักแจ้งเตือนหากลืมใส่ URL (สำหรับนักพัฒนา)
-      if (APPS_SCRIPT_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbzDlFJzPtv-OU8vJ05wRx3jIIOK176O_08RqRR9idoOpnhvfPv0z0E-Pck1F8Xwxlyy/exec") {
+      if (APPS_SCRIPT_WEB_APP_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE" || APPS_SCRIPT_WEB_APP_URL === "") {
           alert("กรุณาตั้งค่า APPS_SCRIPT_WEB_APP_URL ในโค้ดก่อนใช้งาน");
           return;
       }
