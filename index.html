@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>แบบฟอร์มบันทึกนัดหมาย</title>
+  <title>แบบฟอร์มบันทึกนัดหมาย - งานกิจการนักเรียน</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
     
     body { 
       font-family: 'Sarabun', sans-serif; 
-      background: linear-gradient(135deg, #e0f2fe 0%, #fff1f2 100%);
+      /* พื้นหลังไล่สีโทน ม่วงอ่อน ไป เหลืองอ่อน */
+      background: linear-gradient(135deg, #f3e8ff 0%, #fef9c3 100%);
       min-height: 100vh;
     }
 
@@ -21,7 +22,8 @@
     }
     .custom-input:focus {
       transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.1), 0 2px 4px -1px rgba(236, 72, 153, 0.06);
+      /* เงาตอนกดพิมพ์เป็นสีม่วง */
+      box-shadow: 0 4px 6px -1px rgba(147, 51, 234, 0.15), 0 2px 4px -1px rgba(147, 51, 234, 0.1);
     }
     
     .loading-overlay {
@@ -41,50 +43,55 @@
   <!-- Loading Screen -->
   <div id="loading" class="loading-overlay">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-pink-500 mx-auto"></div>
-      <p class="mt-4 text-gray-600 font-semibold text-lg animate-pulse">กำลังบันทึกข้อมูล...</p>
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600 mx-auto"></div>
+      <p class="mt-4 text-gray-700 font-semibold text-lg animate-pulse">กำลังบันทึกข้อมูล...</p>
     </div>
   </div>
 
-  <div class="w-full max-w-lg bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-white/50">
+  <div class="w-full max-w-lg bg-white/85 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden border border-purple-100">
     
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-400 to-pink-500 p-5 text-center relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -translate-x-10 -translate-y-10"></div>
-      <div class="absolute bottom-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full translate-x-10 translate-y-10"></div>
+    <!-- Header (โทนม่วง-เหลือง) -->
+    <div class="bg-gradient-to-r from-purple-700 via-purple-600 to-yellow-500 p-6 text-center relative overflow-hidden">
+      <!-- วงกลมตกแต่งฉากหลัง -->
+      <div class="absolute top-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-x-10 -translate-y-10"></div>
+      <div class="absolute bottom-0 right-0 w-40 h-40 bg-yellow-300 opacity-20 rounded-full translate-x-12 translate-y-12"></div>
       
-      <div class="relative z-10 mb-3 flex justify-center">
-        <div class="bg-white p-2 rounded-xl shadow-lg inline-block transform hover:scale-105 transition-transform duration-300">
-           <img src="https://pakprak.ac.th/wp-content/uploads/2021/10/logohomeArtboard-1-2048x523.png" 
-                alt="School Logo" 
-                class="h-10 md:h-12 w-auto object-contain">
+      <!-- ข้อความแทนโลโก้ -->
+      <div class="relative z-10 mb-4 flex flex-col items-center justify-center">
+        <div class="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/30 shadow-sm transform hover:scale-105 transition-transform duration-300">
+           <h1 class="text-xl md:text-2xl font-bold text-white drop-shadow-md tracking-wide">
+             งานกิจการนักเรียน
+           </h1>
+           <h2 class="text-sm md:text-base font-semibold text-yellow-100 mt-1 drop-shadow-sm">
+             โรงเรียนเมืองสุราษฎร์ธานี
+           </h2>
         </div>
       </div>
 
-      <h2 class="text-2xl font-bold text-white mb-1 relative z-10 drop-shadow-sm">
-        <i class="far fa-calendar-check mr-2"></i>นัดหมายใหม่
-      </h2>
-      <p class="text-white/90 text-sm font-medium relative z-10">ระบบบันทึกตารางงานออนไลน์</p>
+      <h3 class="text-xl font-bold text-white mb-1 relative z-10 drop-shadow-sm flex items-center justify-center">
+        <i class="far fa-calendar-check mr-2 text-yellow-300"></i> นัดหมายใหม่
+      </h3>
+      <p class="text-purple-100 text-sm font-medium relative z-10">ระบบบันทึกตารางงานออนไลน์</p>
     </div>
 
     <!-- Form Section -->
     <form id="eventForm" class="p-8 space-y-5" onsubmit="submitForm(event)">
       <!-- หัวข้อ -->
       <div class="group">
-        <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">หัวข้อกิจกรรม</label>
+        <label class="block text-gray-700 text-sm font-semibold mb-2 ml-1">หัวข้อกิจกรรม</label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <i class="fas fa-heading text-blue-300"></i>
+            <i class="fas fa-heading text-purple-400"></i>
           </div>
-          <input class="custom-input w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+          <input class="custom-input w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white" 
                  id="title" name="title" type="text" placeholder="เช่น ประชุมทีม, ส่งงาน" required>
         </div>
       </div>
 
       <!-- Checkbox ตลอดทั้งวัน -->
       <div class="flex items-center ml-1">
-        <input type="checkbox" id="allDay" class="w-5 h-5 text-pink-500 rounded focus:ring-pink-400 border-gray-300" onchange="toggleAllDay()">
-        <label for="allDay" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
+        <input type="checkbox" id="allDay" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300 cursor-pointer" onchange="toggleAllDay()">
+        <label for="allDay" class="ml-2 text-sm font-semibold text-gray-700 cursor-pointer select-none">
           กิจกรรมตลอดทั้งวัน (All Day)
         </label>
       </div>
@@ -92,20 +99,20 @@
       <!-- วันเวลา -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="group">
-          <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">เริ่ม</label>
+          <label class="block text-gray-700 text-sm font-semibold mb-2 ml-1">เริ่ม</label>
           <div class="flex gap-2">
-            <input class="custom-input w-3/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+            <input class="custom-input w-3/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white" 
                    id="startDate" type="date" required>
-            <input class="custom-input w-2/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+            <input class="custom-input w-2/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:bg-white" 
                    id="startTime" type="time" required>
           </div>
         </div>
         <div class="group">
-          <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">สิ้นสุด</label>
+          <label class="block text-gray-700 text-sm font-semibold mb-2 ml-1">สิ้นสุด</label>
           <div class="flex gap-2">
-            <input class="custom-input w-3/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+            <input class="custom-input w-3/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white" 
                    id="endDate" type="date" required>
-            <input class="custom-input w-2/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+            <input class="custom-input w-2/5 px-2 sm:px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:bg-white" 
                    id="endTime" type="time" required>
           </div>
         </div>
@@ -113,25 +120,25 @@
 
       <!-- สถานที่ -->
       <div class="group">
-        <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">สถานที่</label>
+        <label class="block text-gray-700 text-sm font-semibold mb-2 ml-1">สถานที่</label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <i class="fas fa-map-marker-alt text-blue-300"></i>
+            <i class="fas fa-map-marker-alt text-purple-400"></i>
           </div>
-          <input class="custom-input w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white" 
+          <input class="custom-input w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white" 
                  id="location" name="location" type="text" placeholder="ระบุสถานที่ (เช่น ห้องประชุม, ออนไลน์)">
         </div>
       </div>
 
       <!-- รายละเอียด -->
       <div class="group">
-        <label class="block text-gray-600 text-sm font-semibold mb-2 ml-1">รายละเอียด</label>
-        <textarea class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:bg-white" 
+        <label class="block text-gray-700 text-sm font-semibold mb-2 ml-1">รายละเอียด</label>
+        <textarea class="custom-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:bg-white" 
                   id="description" name="description" rows="3" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl focus:ring-4 focus:ring-pink-200 active:scale-95">
+      <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-yellow-500 hover:from-purple-700 hover:to-yellow-500 text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl focus:ring-4 focus:ring-purple-300 active:scale-95 text-lg">
         <span class="flex items-center justify-center gap-2">
           <i class="fas fa-save"></i> บันทึกข้อมูล
         </span>
@@ -140,36 +147,36 @@
 
     <!-- Success View Section (Hidden by default) -->
     <div id="successView" class="hidden p-8 text-center fade-in">
-      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <i class="fas fa-check text-4xl text-green-500"></i>
+      <div class="w-24 h-24 bg-gradient-to-br from-purple-100 to-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+        <i class="fas fa-check text-5xl text-purple-600"></i>
       </div>
       <h3 class="text-2xl font-bold text-gray-800 mb-2">บันทึกสำเร็จ!</h3>
       <p class="text-gray-600 mb-8">ข้อมูลของคุณถูกบันทึกลงในปฏิทินเรียบร้อยแล้ว</p>
       
-      <div class="space-y-3">
-        <a href="https://calendar.google.com/calendar/embed?src=2c05d97db573c4fa52e4a603fdbcf42a52042763b94c42b37222b41730f07445%40group.calendar.google.com&ctz=Asia%2FBangkok" 
+      <div class="space-y-4">
+        <a href="https://calendar.google.com/calendar/embed?src=sathit.ritin40%40gmail.com&ctz=Asia%2FBangkok" 
            target="_blank"
-           class="block w-full bg-white border-2 border-blue-500 text-blue-600 font-bold py-3 rounded-2xl hover:bg-blue-50 transition duration-300">
-          <i class="far fa-calendar-alt mr-2"></i> ดูปฏิทินกิจกรรม
+           class="flex items-center justify-center w-full bg-white border-2 border-purple-500 text-purple-700 font-bold py-3 rounded-2xl hover:bg-purple-50 transition duration-300 shadow-sm">
+          <i class="far fa-calendar-alt mr-2 text-xl"></i> ดูปฏิทินกิจกรรม
         </a>
         
         <button onclick="resetAndShowForm()" 
-                class="block w-full bg-gradient-to-r from-blue-500 to-pink-500 text-white font-bold py-3 rounded-2xl hover:shadow-lg transition duration-300">
-          <i class="fas fa-plus mr-2"></i> เพิ่มรายการใหม่
+                class="flex items-center justify-center w-full bg-gradient-to-r from-purple-600 to-yellow-500 text-white font-bold py-3 rounded-2xl hover:shadow-lg transition duration-300">
+          <i class="fas fa-plus mr-2 text-xl"></i> เพิ่มรายการใหม่
         </button>
       </div>
     </div>
 
   </div>
 
-  <div class="fixed bottom-4 text-center w-full text-gray-400 text-xs">
+  <div class="fixed bottom-4 text-center w-full text-purple-800/60 font-medium text-xs drop-shadow-sm">
     © Created by ICT PPW
   </div>
 
   <!-- SCRIPT -->
   <script>
     // =========================================================
-    // ⚠️ นำ URL ที่ได้จากการ Deploy Web App ของ Apps Script มาใส่ตรงนี้ 
+    // URL Web App ของคุณ
     // =========================================================
     const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDlFJzPtv-OU8vJ05wRx3jIIOK176O_08RqRR9idoOpnhvfPv0z0E-Pck1F8Xwxlyy/exec";
 
@@ -185,7 +192,7 @@
       
       const localNow = new Date(now - tzoffset);
       const startDateStr = localNow.toISOString().split('T')[0];
-      const startTimeStr = localNow.toISOString().split('T')[1].slice(0, 5); // เอาเฉพาะชั่วโมงและนาที HH:mm
+      const startTimeStr = localNow.toISOString().split('T')[1].slice(0, 5); 
       
       const oneHourLater = new Date(now.getTime() + 60*60*1000 - tzoffset);
       const endDateStr = oneHourLater.toISOString().split('T')[0];
@@ -218,11 +225,10 @@
       setDefaultDateTime();
     }
 
-    // === ฟังก์ชันส่งข้อมูลด้วย fetch API แทน google.script.run ===
+    // === ฟังก์ชันส่งข้อมูลด้วย fetch API ===
     function submitForm(e) {
       e.preventDefault();
       
-      // ดักแจ้งเตือนหากลืมใส่ URL (สำหรับนักพัฒนา)
       if (APPS_SCRIPT_WEB_APP_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE" || APPS_SCRIPT_WEB_APP_URL === "") {
           alert("กรุณาตั้งค่า APPS_SCRIPT_WEB_APP_URL ในโค้ดก่อนใช้งาน");
           return;
@@ -265,7 +271,6 @@
       // ส่งข้อมูลด้วย fetch
       fetch(APPS_SCRIPT_WEB_APP_URL, {
         method: "POST",
-        // สำคัญ: สำหรับ GAS ต้องส่งเป็น plain text เพื่อหลีกเลี่ยงปัญหา CORS Preflight
         headers: {
           "Content-Type": "text/plain;charset=utf-8", 
         },
@@ -303,3 +308,5 @@
   </script>
 </body>
 </html>
+
+
